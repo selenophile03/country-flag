@@ -151,9 +151,9 @@ class CountryApp(QWidget):
         curr_str = ", ".join(curr_list) if curr_list else "N/A"
         self.currency.setText(f"Currency: {curr_str}")
 
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     country = CountryApp()
     country.show()
     sys.exit(app.exec_())
+
