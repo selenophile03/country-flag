@@ -64,18 +64,14 @@
             background-color: #30363d;
         }
         .flag-box {
-            min-height: 160px;
+            min-height: 120px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 25px;
-        }
-        .flag-box img {
-            max-width: 280px;
-            max-height: 160px;
-            border-radius: 4px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            border: 1px solid var(--border-color);
+            margin-bottom: 15px;
+            font-size: 96px;
+            line-height: 1;
+            user-select: none;
         }
         .output-label {
             margin: 15px 0;
@@ -108,7 +104,7 @@
 
     <div class="app-container">
         <h1>Enter Country Name : </h1>
-        <input type="text" id="country-input" placeholder="e.g. India, Germany, France" autofocus>
+        <input type="text" id="country-input" placeholder="e.g. India, USA, France" autofocus>
         <br>
         <button id="search-btn">Get Info</button>
         
@@ -132,75 +128,75 @@
         const countriesDataset = {
             "india": {
                 capital: "New Delhi", timezones: "UTC+05:30", languages: "Hindi, English",
-                currency: "Indian Rupee (INR)", flag: "https://flagcdn.com"
+                currency: "Indian Rupee (INR)", flag: "🇮🇳"
             },
             "united states": {
                 capital: "Washington, D.C.", timezones: "UTC-05:00 to UTC-08:00", languages: "English",
-                currency: "United States Dollar ($)", flag: "https://flagcdn.com"
+                currency: "United States Dollar ($)", flag: "🇺🇸"
             },
             "usa": {
                 capital: "Washington, D.C.", timezones: "UTC-05:00 to UTC-08:00", languages: "English",
-                currency: "United States Dollar ($)", flag: "https://flagcdn.com"
+                currency: "United States Dollar ($)", flag: "🇺🇸"
             },
             "canada": {
                 capital: "Ottawa", timezones: "UTC-03:30 to UTC-08:00", languages: "English, French",
-                currency: "Canadian Dollar ($)", flag: "https://flagcdn.com"
+                currency: "Canadian Dollar ($)", flag: "🇨🇦"
             },
             "united kingdom": {
                 capital: "London", timezones: "UTC+00:00", languages: "English",
-                currency: "British Pound (£)", flag: "https://flagcdn.com"
+                currency: "British Pound (£)", flag: "🇬🇧"
             },
             "uk": {
                 capital: "London", timezones: "UTC+00:00", languages: "English",
-                currency: "British Pound (£)", flag: "https://flagcdn.com"
+                currency: "British Pound (£)", flag: "🇬🇧"
             },
             "germany": {
                 capital: "Berlin", timezones: "UTC+01:00", languages: "German",
-                currency: "Euro (€)", flag: "https://flagcdn.com"
+                currency: "Euro (€)", flag: "🇩🇪"
             },
             "france": {
                 capital: "Paris", timezones: "UTC+01:00", languages: "French",
-                currency: "Euro (€)", flag: "https://flagcdn.com"
+                currency: "Euro (€)", flag: "🇫🇷"
             },
             "japan": {
                 capital: "Tokyo", timezones: "UTC+09:00", languages: "Japanese",
-                currency: "Japanese Yen (¥)", flag: "https://flagcdn.com"
+                currency: "Japanese Yen (¥)", flag: "🇯🇵"
             },
             "australia": {
                 capital: "Canberra", timezones: "UTC+08:00 to UTC+10:50", languages: "English",
-                currency: "Australian Dollar ($)", flag: "https://flagcdn.com"
+                currency: "Australian Dollar ($)", flag: "🇦🇺"
             },
             "brazil": {
                 capital: "Brasília", timezones: "UTC-02:00 to UTC-05:00", languages: "Portuguese",
-                currency: "Brazilian Real (R$)", flag: "https://flagcdn.com"
+                currency: "Brazilian Real (R$)", flag: "🇧🇷"
             },
             "russia": {
                 capital: "Moscow", timezones: "UTC+03:00 to UTC+12:00", languages: "Russian",
-                currency: "Russian Ruble (₽)", flag: "https://flagcdn.com"
+                currency: "Russian Ruble (₽)", flag: "🇷🇺"
             },
             "china": {
                 capital: "Beijing", timezones: "UTC+08:00", languages: "Chinese",
-                currency: "Renminbi (¥)", flag: "https://flagcdn.com"
+                currency: "Renminbi (¥)", flag: "🇨🇳"
             },
             "south africa": {
                 capital: "Pretoria, Cape Town, Bloemfontein", timezones: "UTC+02:00", languages: "11 official languages",
-                currency: "South African Rand (R)", flag: "https://flagcdn.com"
+                currency: "South African Rand (R)", flag: "🇿🇦"
             },
             "italy": {
                 capital: "Rome", timezones: "UTC+01:00", languages: "Italian",
-                currency: "Euro (€)", flag: "https://flagcdn.com"
+                currency: "Euro (€)", flag: "🇮🇹"
             },
             "spain": {
                 capital: "Madrid", timezones: "UTC+01:00", languages: "Spanish",
-                currency: "Euro (€)", flag: "https://flagcdn.com"
+                currency: "Euro (€)", flag: "🇪🇸"
             },
             "mexico": {
                 capital: "Mexico City", timezones: "UTC-05:00 to UTC-08:00", languages: "Spanish",
-                currency: "Mexican Peso ($)", flag: "https://flagcdn.com"
+                currency: "Mexican Peso ($)", flag: "🇲🇽"
             },
             "egypt": {
                 capital: "Cairo", timezones: "UTC+02:00", languages: "Arabic",
-                currency: "Egyptian Pound (E£)", flag: "https://flagcdn.com"
+                currency: "Egyptian Pound (E£)", flag: "🇪🇬"
             }
         };
 
@@ -222,13 +218,9 @@
                 timeLabel.innerText = `Timezone: ${countryData.timezones}`;
                 langLabel.innerText = `Languages: ${countryData.languages}`;
                 currencyLabel.innerText = `Currency: ${countryData.currency}`;
-
-                const imgElement = document.createElement('img');
-                imgElement.src = countryData.flag;
-                imgElement.alt = "Country Flag";
-                flagContainer.appendChild(imgElement);
+                flagContainer.innerText = countryData.flag;
             } else {
-                capitalLabel.innerText = "Country not found in offline database.";
+                capitalLabel.innerText = "Country not found in database.";
             }
         }
 
@@ -237,7 +229,7 @@
             timeLabel.innerText = "";
             langLabel.innerText = "";
             currencyLabel.innerText = "";
-            flagContainer.innerHTML = "";
+            flagContainer.innerText = "";
         }
 
         searchBtn.addEventListener('click', getInfo);
@@ -249,4 +241,3 @@
     </script>
 </body>
 </html>
-
