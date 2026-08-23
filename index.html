@@ -108,7 +108,7 @@
 
     <div class="app-container">
         <h1>Enter Country Name : </h1>
-        <input type="text" id="country-input" placeholder="e.g. India, France, Canada" autofocus>
+        <input type="text" id="country-input" placeholder="e.g. India, Germany, France" autofocus>
         <br>
         <button id="search-btn">Get Info</button>
         
@@ -129,8 +129,83 @@
         const currencyLabel = document.getElementById('currency');
         const flagContainer = document.getElementById('flag-container');
 
-        async function getInfo() {
-            const countryName = inputField.value.trim();
+        const countriesDataset = {
+            "india": {
+                capital: "New Delhi", timezones: "UTC+05:30", languages: "Hindi, English",
+                currency: "Indian Rupee (INR)", flag: "https://flagcdn.com"
+            },
+            "united states": {
+                capital: "Washington, D.C.", timezones: "UTC-05:00 to UTC-08:00", languages: "English",
+                currency: "United States Dollar ($)", flag: "https://flagcdn.com"
+            },
+            "usa": {
+                capital: "Washington, D.C.", timezones: "UTC-05:00 to UTC-08:00", languages: "English",
+                currency: "United States Dollar ($)", flag: "https://flagcdn.com"
+            },
+            "canada": {
+                capital: "Ottawa", timezones: "UTC-03:30 to UTC-08:00", languages: "English, French",
+                currency: "Canadian Dollar ($)", flag: "https://flagcdn.com"
+            },
+            "united kingdom": {
+                capital: "London", timezones: "UTC+00:00", languages: "English",
+                currency: "British Pound (£)", flag: "https://flagcdn.com"
+            },
+            "uk": {
+                capital: "London", timezones: "UTC+00:00", languages: "English",
+                currency: "British Pound (£)", flag: "https://flagcdn.com"
+            },
+            "germany": {
+                capital: "Berlin", timezones: "UTC+01:00", languages: "German",
+                currency: "Euro (€)", flag: "https://flagcdn.com"
+            },
+            "france": {
+                capital: "Paris", timezones: "UTC+01:00", languages: "French",
+                currency: "Euro (€)", flag: "https://flagcdn.com"
+            },
+            "japan": {
+                capital: "Tokyo", timezones: "UTC+09:00", languages: "Japanese",
+                currency: "Japanese Yen (¥)", flag: "https://flagcdn.com"
+            },
+            "australia": {
+                capital: "Canberra", timezones: "UTC+08:00 to UTC+10:50", languages: "English",
+                currency: "Australian Dollar ($)", flag: "https://flagcdn.com"
+            },
+            "brazil": {
+                capital: "Brasília", timezones: "UTC-02:00 to UTC-05:00", languages: "Portuguese",
+                currency: "Brazilian Real (R$)", flag: "https://flagcdn.com"
+            },
+            "russia": {
+                capital: "Moscow", timezones: "UTC+03:00 to UTC+12:00", languages: "Russian",
+                currency: "Russian Ruble (₽)", flag: "https://flagcdn.com"
+            },
+            "china": {
+                capital: "Beijing", timezones: "UTC+08:00", languages: "Chinese",
+                currency: "Renminbi (¥)", flag: "https://flagcdn.com"
+            },
+            "south africa": {
+                capital: "Pretoria, Cape Town, Bloemfontein", timezones: "UTC+02:00", languages: "11 official languages",
+                currency: "South African Rand (R)", flag: "https://flagcdn.com"
+            },
+            "italy": {
+                capital: "Rome", timezones: "UTC+01:00", languages: "Italian",
+                currency: "Euro (€)", flag: "https://flagcdn.com"
+            },
+            "spain": {
+                capital: "Madrid", timezones: "UTC+01:00", languages: "Spanish",
+                currency: "Euro (€)", flag: "https://flagcdn.com"
+            },
+            "mexico": {
+                capital: "Mexico City", timezones: "UTC-05:00 to UTC-08:00", languages: "Spanish",
+                currency: "Mexican Peso ($)", flag: "https://flagcdn.com"
+            },
+            "egypt": {
+                capital: "Cairo", timezones: "UTC+02:00", languages: "Arabic",
+                currency: "Egyptian Pound (E£)", flag: "https://flagcdn.com"
+            }
+        };
+
+        function getInfo() {
+            const countryName = inputField.value.trim().toLowerCase();
             
             if (!countryName) {
                 clearOutputs();
@@ -139,50 +214,22 @@
             }
 
             clearOutputs();
-            capitalLabel.innerText = "Searching...";
 
-            try {
-                const url = `https://first.org{encodeURIComponent(countryName)}`;
-                const response = await fetch(url);
+            if (countriesDataset[countryName]) {
+                const countryData = countriesDataset[countryName];
+                
+                capitalLabel.innerText = `Capital: ${countryData.capital}`;
+                timeLabel.innerText = `Timezone: ${countryData.timezones}`;
+                langLabel.innerText = `Languages: ${countryData.languages}`;
+                currencyLabel.innerText = `Currency: ${countryData.currency}`;
 
-                if (response.status === 200) {
-                    const payload = await response.json();
-                    
-                    if (payload && payload.data && Object.keys(payload.data).length > 0) {
-                        const countryCode = Object.keys(payload.data)[0];
-                        const countryData = payload.data[countryCode];
-                        renderCountryInfo(countryCode, countryData);
-                    } else {
-                        clearOutputs();
-                        capitalLabel.innerText = "Country not found!";
-                    }
-                } else {
-                    clearOutputs();
-                    capitalLabel.innerText = "Country not found!";
-                }
-            } catch (error) {
-                clearOutputs();
-                capitalLabel.innerText = "Connection error. Make sure you are online.";
-                console.error(error);
+                const imgElement = document.createElement('img');
+                imgElement.src = countryData.flag;
+                imgElement.alt = "Country Flag";
+                flagContainer.appendChild(imgElement);
+            } else {
+                capitalLabel.innerText = "Country not found in offline database.";
             }
-        }
-
-        function renderCountryInfo(code, data) {
-            const countryCodeLower = code.toLowerCase();
-            
-            capitalLabel.innerText = `Country: ${data.country || "N/A"}`;
-            timeLabel.innerText = `Region: ${data.region || "N/A"}`;
-            langLabel.innerText = `Country Code: ${code}`;
-            currencyLabel.innerText = `Status: Verified Global Entry`;
-
-            const imgElement = document.createElement('img');
-            imgElement.src = `https://flagcdn.com{countryCodeLower}.png`;
-            imgElement.alt = "Country Flag";
-            imgElement.onerror = function() {
-                flagContainer.innerHTML = "";
-            };
-            
-            flagContainer.appendChild(imgElement);
         }
 
         function clearOutputs() {
