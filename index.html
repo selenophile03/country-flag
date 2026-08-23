@@ -75,11 +75,7 @@
             max-height: 160px;
             border-radius: 4px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-        .flag-missing {
-            color: #8b949e;
-            font-size: 16px;
-            font-family: Arial, sans-serif;
+            border: 1px solid var(--border-color);
         }
         .output-label {
             margin: 15px 0;
@@ -116,6 +112,7 @@
         <br>
         <button id="search-btn">Get Info</button>
         
+        <!-- Live Flag Renders Dynamically from API CDN URLs -->
         <div class="flag-box" id="flag-container"></div>
         
         <div class="output-label" id="capital"></div>
@@ -146,13 +143,13 @@
             capitalLabel.innerText = "Searching...";
 
             try {
-                // Correct RestCountries standard v3.1 routing url path
                 const url = `https://restcountries.com{encodeURIComponent(countryName)}`;
                 const response = await fetch(url);
 
                 if (response.status === 200) {
                     const data = await response.json();
-                    renderCountryInfo(data[0]);
+                    // FIXED: Explicitly target the first item data[0] since the API returns an array list
+                    renderCountryInfo(data[0]); 
                 } else {
                     clearOutputs();
                     capitalLabel.innerText = "Country not found!";
@@ -165,7 +162,7 @@
         }
 
         function renderCountryInfo(countryData) {
-            // Parse & display textual country parameters
+            // Parse and render the text items safely
             const capitals = countryData.capital || ["N/A"];
             capitalLabel.innerText = `Capital: ${capitals.join(', ')}`;
 
@@ -184,31 +181,13 @@
             }
             currencyLabel.innerText = `Currency: ${currList.length ? currList.join(', ') : 'N/A'}`;
 
-            // Image format scanning algorithm to fetch from local repository folder
-            const commonName = countryData.name?.common || "";
-            if (commonName) {
-                const safeFilename = commonName.toLowerCase().replace(/ /g, "_");
-                const formats = ['png', 'jpg', 'jpeg', 'gif'];
-                let imgElement = document.createElement('img');
-                
-                let index = 0;
-                function tryNextFormat() {
-                    if (index >= formats.length) {
-                        flagContainer.innerHTML = `<div class="flag-missing">ℹ️ (Local flag file '${safeFilename}.png' missing)</div>`;
-                        return;
-                    }
-                    
-                    imgElement.src = `flags/${safeFilename}.${formats[index]}`;
-                    imgElement.onload = () => {
-                        flagContainer.innerHTML = '';
-                        flagContainer.appendChild(imgElement);
-                    };
-                    imgElement.onerror = () => {
-                        index++;
-                        tryNextFormat();
-                    };
-                }
-                tryNextFormat();
+            // Pull the real-time flag image live from the API response payload
+            const flagUrl = countryData.flags?.png || countryData.flags?.svg;
+            if (flagUrl) {
+                const imgElement = document.createElement('img');
+                imgElement.src = flagUrl;
+                imgElement.alt = `Flag of ${countryData.name?.common || 'Country'}`;
+                flagContainer.appendChild(imgElement);
             }
         }
 
@@ -220,7 +199,7 @@
             flagContainer.innerHTML = "";
         }
 
-        // Search action triggers
+        // Action event listener connections
         searchBtn.addEventListener('click', getInfo);
         inputField.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') getInfo();
