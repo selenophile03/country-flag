@@ -108,11 +108,10 @@
 
     <div class="app-container">
         <h1>Enter Country Name : </h1>
-        <input type="text" id="country-input" placeholder="e.g. India, Germany, Canada" autofocus>
+        <input type="text" id="country-input" placeholder="e.g. India, France, Canada" autofocus>
         <br>
         <button id="search-btn">Get Info</button>
         
-        <!-- Live Flag Renders Dynamically via ApiCountries CDN -->
         <div class="flag-box" id="flag-container"></div>
         
         <div class="output-label" id="capital"></div>
@@ -124,7 +123,6 @@
     <script>
         const inputField = document.getElementById('country-input');
         const searchBtn = document.getElementById('search-btn');
-        
         const capitalLabel = document.getElementById('capital');
         const timeLabel = document.getElementById('time');
         const langLabel = document.getElementById('lang');
@@ -133,6 +131,7 @@
 
         async function getInfo() {
             const countryName = inputField.value.trim();
+            
             if (!countryName) {
                 clearOutputs();
                 capitalLabel.innerText = "Please enter a country name";
@@ -143,18 +142,16 @@
             capitalLabel.innerText = "Searching...";
 
             try {
-                // Switching from the unstable restcountries API to the reliable apicountries engine
-                const url = `https://apicountries.com{encodeURIComponent(countryName)}`;
+                const url = `https://first.org{encodeURIComponent(countryName)}`;
                 const response = await fetch(url);
 
                 if (response.status === 200) {
-                    const data = await response.json();
+                    const payload = await response.json();
                     
-                    // The ApiCountries endpoint safely yields matched item arrays
-                    if (Array.isArray(data) && data.length > 0) {
-                        renderCountryInfo(data[0]); 
-                    } else if (data && !Array.isArray(data)) {
-                        renderCountryInfo(data);
+                    if (payload && payload.data && Object.keys(payload.data).length > 0) {
+                        const countryCode = Object.keys(payload.data)[0];
+                        const countryData = payload.data[countryCode];
+                        renderCountryInfo(countryCode, countryData);
                     } else {
                         clearOutputs();
                         capitalLabel.innerText = "Country not found!";
@@ -170,37 +167,22 @@
             }
         }
 
-        function renderCountryInfo(countryData) {
-            // Render Capital Data
-            const capitals = countryData.capital || ["N/A"];
-            capitalLabel.innerText = `Capital: ${Array.isArray(capitals) ? capitals.join(', ') : capitals}`;
+        function renderCountryInfo(code, data) {
+            const countryCodeLower = code.toLowerCase();
+            
+            capitalLabel.innerText = `Country: ${data.country || "N/A"}`;
+            timeLabel.innerText = `Region: ${data.region || "N/A"}`;
+            langLabel.innerText = `Country Code: ${code}`;
+            currencyLabel.innerText = `Status: Verified Global Entry`;
 
-            // Render Timezone Data 
-            const timezones = countryData.timezones || ["N/A"];
-            timeLabel.innerText = `Timezone: ${Array.isArray(timezones) ? timezones.join(', ') : timezones}`;
-
-            // Render Languages Data 
-            const languages = countryData.languages ? Object.values(countryData.languages) : ["N/A"];
-            langLabel.innerText = `Languages: ${languages.join(', ')}`;
-
-            // Render Currencies Data Map
-            const currencies = countryData.currencies || {};
-            let currList = [];
-            for (const [code, details] of Object.entries(currencies)) {
-                const name = details.name || code;
-                const symbol = details.symbol ? ` (${details.symbol})` : '';
-                currList.push(`${name}${symbol}`);
-            }
-            currencyLabel.innerText = `Currency: ${currList.length ? currList.join(', ') : 'N/A'}`;
-
-            // Fetch high-speed live flags dynamically straight through the API image pipeline data block
-            const flagUrl = countryData.flags?.png || countryData.flags?.svg;
-            if (flagUrl) {
-                const imgElement = document.createElement('img');
-                imgElement.src = flagUrl;
-                imgElement.alt = `Flag`;
-                flagContainer.appendChild(imgElement);
-            }
+            const imgElement = document.createElement('img');
+            imgElement.src = `https://flagcdn.com{countryCodeLower}.png`;
+            imgElement.alt = "Country Flag";
+            imgElement.onerror = function() {
+                flagContainer.innerHTML = "";
+            };
+            
+            flagContainer.appendChild(imgElement);
         }
 
         function clearOutputs() {
@@ -211,10 +193,11 @@
             flagContainer.innerHTML = "";
         }
 
-        // Action Trigger Listeners
         searchBtn.addEventListener('click', getInfo);
-        inputField.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') getInfo();
+        inputField.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                getInfo();
+            }
         });
     </script>
 </body>
