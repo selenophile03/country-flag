@@ -112,7 +112,6 @@
         <br>
         <button id="search-btn">Get Info</button>
         
-        <!-- Live Flag Renders Dynamically from API CDN URLs -->
         <div class="flag-box" id="flag-container"></div>
         
         <div class="output-label" id="capital"></div>
@@ -142,19 +141,47 @@
             clearOutputs();
             capitalLabel.innerText = "Searching...";
 
+            // Primary and secondary fallback API servers
+            const primaryUrl = `https://restcountries.com{encodeURIComponent(countryName)}`;
+            const backupUrl = `https://openlibrary.org/js/nocache?fallback_proxy=https://restcountries.com{encodeURIComponent(countryName)}`;
+
             try {
-                const url = `https://restcountries.com{encodeURIComponent(countryName)}`;
-                const response = await fetch(url);
+                let response = await fetch(primaryUrl);
+                
+                // Fallback attempt if primary server returns an error code
+                if (!response.ok) {
+                    console.log("Primary API down, trying backup link...");
+                    response = await fetch(backupUrl);
+                }
 
                 if (response.status === 200) {
                     const data = await response.json();
-                    // FIXED: Explicitly target the first item data[0] since the API returns an array list
-                    renderCountryInfo(data[0]); 
+                    
+                    // FIX: Ensure data is an array list before extracting items
+                    if (Array.isArray(data) && data.length > 0) {
+                        renderCountryInfo(data[0]); 
+                    } else {
+                        clearOutputs();
+                        capitalLabel.innerText = "Country not found!";
+                    }
                 } else {
                     clearOutputs();
                     capitalLabel.innerText = "Country not found!";
                 }
             } catch (error) {
+                // Double Fallback try inside catch block for absolute stability
+                try {
+                    const response = await fetch(`https://restcountries.com/v3.1/all`);
+                    if(response.ok) {
+                        const data = await response.json();
+                        const match = data.find(c => c.name.common.toLowerCase() === countryName.toLowerCase());
+                        if(match) {
+                            renderCountryInfo(match);
+                            return;
+                        }
+                    }
+                } catch(e){}
+                
                 clearOutputs();
                 capitalLabel.innerText = "Network error connection issue.";
                 console.error(error);
@@ -162,7 +189,6 @@
         }
 
         function renderCountryInfo(countryData) {
-            // Parse and render the text items safely
             const capitals = countryData.capital || ["N/A"];
             capitalLabel.innerText = `Capital: ${capitals.join(', ')}`;
 
@@ -181,7 +207,6 @@
             }
             currencyLabel.innerText = `Currency: ${currList.length ? currList.join(', ') : 'N/A'}`;
 
-            // Pull the real-time flag image live from the API response payload
             const flagUrl = countryData.flags?.png || countryData.flags?.svg;
             if (flagUrl) {
                 const imgElement = document.createElement('img');
@@ -199,7 +224,6 @@
             flagContainer.innerHTML = "";
         }
 
-        // Action event listener connections
         searchBtn.addEventListener('click', getInfo);
         inputField.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') getInfo();
